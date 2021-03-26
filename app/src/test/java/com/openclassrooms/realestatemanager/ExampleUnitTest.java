@@ -1,5 +1,7 @@
 package com.openclassrooms.realestatemanager;
 
+import com.openclassrooms.realestatemanager.fragment.FragmentLoan;
+
 import org.junit.Test;
 
 import java.text.DateFormat;
@@ -29,5 +31,17 @@ public class ExampleUnitTest {
     public void todayDateFormat_isCorrect() {
         String correctDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         assertEquals(correctDate, Utils.getTodayDate());
+    }
+
+    @Test
+    public void loanCalculateMonthlyPay_isCorrect(){
+        Double rightResult = 529.9028930322098;
+        assertEquals(rightResult, FragmentLoan.calculateLoanMonthlyPay(100000, 20, 2.5));
+    }
+
+    @Test
+    public void loanCalculateTotalInterest_isCorrect(){
+        Double rightResult = 27176.69432773035;
+        assertEquals(rightResult, FragmentLoan.calculateLoanTotalInterest(100000, 20, 2.5));
     }
 }

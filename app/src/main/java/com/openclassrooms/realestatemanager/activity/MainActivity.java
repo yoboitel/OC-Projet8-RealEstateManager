@@ -2,7 +2,6 @@ package com.openclassrooms.realestatemanager.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -57,25 +56,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void bottomNavBarFragmentsManagement() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_list:
-                        MainActivity.this.displayFragment(new FragmentList());
-                        return true;
-                    case R.id.navigation_map:
-                        MainActivity.this.displayFragment(new FragmentMap());
-                        return true;
-                    case R.id.navigation_search:
-                        MainActivity.this.displayFragment(new FragmentSearch());
-                        return true;
-                    case R.id.navigation_loan:
-                        MainActivity.this.displayFragment(new FragmentLoan());
-                        return true;
-                }
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.navigation_list:
+                    MainActivity.this.displayFragment(new FragmentList());
+                    return true;
+                case R.id.navigation_map:
+                    MainActivity.this.displayFragment(new FragmentMap());
+                    return true;
+                case R.id.navigation_search:
+                    MainActivity.this.displayFragment(new FragmentSearch());
+                    return true;
+                case R.id.navigation_loan:
+                    MainActivity.this.displayFragment(new FragmentLoan());
+                    return true;
             }
+            return false;
         });
     }
 }
