@@ -1,10 +1,10 @@
 package com.openclassrooms.realestatemanager;
 
+import com.openclassrooms.realestatemanager.Utils.Utils;
 import com.openclassrooms.realestatemanager.fragment.FragmentLoan;
 
 import org.junit.Test;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
