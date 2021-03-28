@@ -1,9 +1,11 @@
 package com.openclassrooms.realestatemanager.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,8 +16,6 @@ import com.openclassrooms.realestatemanager.R;
 import java.util.List;
 
 public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder> {
-
-    private static final String TAG = EstateAdapter.class.getSimpleName();
 
     private Context context;
     private List<Estate> list;
@@ -42,7 +42,7 @@ public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        View view = inflater.inflate(R.layout.estate_list_item, parent, false);
+        View view = inflater.inflate(R.layout.item_estate, parent, false);
 
         return new ViewHolder(view);
     }
@@ -55,14 +55,16 @@ public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder
         holder.bind(item, onItemClickListener);
 
         //Link Views
-        TextView tvIdEstate = holder.itemView.findViewById(R.id.tvEstateId);
         TextView tvTypeEstate = holder.itemView.findViewById(R.id.tvEstateType);
+        TextView tvAddressEstate = holder.itemView.findViewById(R.id.tvEstateAddress);
         TextView tvPriceEstate = holder.itemView.findViewById(R.id.tvEstatePrice);
+        ImageView ivPhotoEstate = holder.itemView.findViewById(R.id.ivEstatePic);
 
         //Set Texts
-        tvIdEstate.setText(String.valueOf(item.getId()));
         tvTypeEstate.setText(item.getType());
-        tvPriceEstate.setText(item.getPrice());
+        tvAddressEstate.setText(item.getAddress());
+        tvPriceEstate.setText(String.format("$%s", item.getPrice()));
+        ivPhotoEstate.setImageURI(Uri.parse(item.getPhotoUrls().get(0)));
     }
 
 

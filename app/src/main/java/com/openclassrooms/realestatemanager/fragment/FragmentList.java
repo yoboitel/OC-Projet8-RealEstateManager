@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.openclassrooms.realestatemanager.Database.DbHelper;
@@ -22,6 +23,7 @@ import java.util.List;
 public class FragmentList extends Fragment {
 
     RecyclerView rcListEstate;
+    LinearLayout viewNoEstates;
 
     public FragmentList() {
         // Required empty public constructor
@@ -37,6 +39,7 @@ public class FragmentList extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_list, container, false);
 
+        viewNoEstates = v.findViewById(R.id.viewNoEstates);
         //Setup recyclerview
         rcListEstate = v.findViewById(R.id.rcEstateList);
         rcListEstate.setLayoutManager(new LinearLayoutManager(requireActivity()));
@@ -61,10 +64,21 @@ public class FragmentList extends Fragment {
         protected void onPostExecute(List<Estate> aVoid) {
             super.onPostExecute(aVoid);
 
-            EstateAdapter estateAdapter = new EstateAdapter(requireActivity(), aVoid, position -> Toast.makeText(requireContext(), "Clicked at : " + position, Toast.LENGTH_SHORT).show());
-            rcListEstate.setAdapter(estateAdapter);
-            estateAdapter.notifyDataSetChanged();
-            Toast.makeText(requireActivity(), "All " + aVoid.size() + " Estates retrieved", Toast.LENGTH_LONG).show();
+            if (aVoid.isEmpty())
+                viewNoEstates.setVisibility(View.VISIBLE);
+            else {
+                viewNoEstates.setVisibility(View.GONE);
+                EstateAdapter estateAdapter = new EstateAdapter(requireActivity(), aVoid, position -> Toast.makeText(requireContext(), "Clicked at : " + position, Toast.LENGTH_SHORT).show());
+                rcListEstate.setAdapter(estateAdapter);
+                estateAdapter.notifyDataSetChanged();
+            }
         }
+    }
+
+    //Refresh the list just after a new estate is added from the NewEstateActivity.java
+    @Override
+    public void onResume() {
+        super.onResume();
+        new getAllEstates().execute();
     }
 }

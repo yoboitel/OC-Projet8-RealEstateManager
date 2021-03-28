@@ -34,4 +34,8 @@ dependencies {
     //Room
     implementation "androidx.room:room-runtime:2.2.6"
     annotationProcessor "androidx.room:room-compiler:2.2.6"
+    //Image picker
+    implementation 'com.opensooq.supernova:gligar:1.1.0'
+    // Added of the Gson library
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
