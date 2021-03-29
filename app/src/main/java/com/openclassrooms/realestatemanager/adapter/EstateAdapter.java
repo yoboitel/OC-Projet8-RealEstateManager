@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.openclassrooms.realestatemanager.Database.Estate;
 import com.openclassrooms.realestatemanager.R;
 
+import java.io.File;
 import java.util.List;
 
 public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder> {
@@ -59,12 +60,16 @@ public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder
         TextView tvAddressEstate = holder.itemView.findViewById(R.id.tvEstateAddress);
         TextView tvPriceEstate = holder.itemView.findViewById(R.id.tvEstatePrice);
         ImageView ivPhotoEstate = holder.itemView.findViewById(R.id.ivEstatePic);
+        ImageView ivEstateSold = holder.itemView.findViewById(R.id.ivEstateSold);
 
         //Set Texts
         tvTypeEstate.setText(item.getType());
         tvAddressEstate.setText(item.getAddress());
         tvPriceEstate.setText(String.format("$%s", item.getPrice()));
         ivPhotoEstate.setImageURI(Uri.parse(item.getPhotoUrls().get(0)));
+        //Show sold icon if estate is sold
+        if (item.getDateSold() != null)
+            ivEstateSold.setVisibility(View.VISIBLE);
     }
 
 

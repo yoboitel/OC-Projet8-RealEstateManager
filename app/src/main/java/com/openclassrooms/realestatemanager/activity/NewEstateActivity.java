@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -206,7 +207,7 @@ public class NewEstateActivity extends AppCompatActivity {
         photoUrls.add(stringUrl);
         photoDescriptions.add(title);
         //Add both lists in the adapter
-        photoAdapter = new PhotoAdapter(getBaseContext(), photoUrls, photoDescriptions);
+        photoAdapter = new PhotoAdapter(getBaseContext(), photoUrls, photoDescriptions, true);
         //Set the adapter and notify
         rcPhoto.setAdapter(photoAdapter);
         photoAdapter.notifyDataSetChanged();

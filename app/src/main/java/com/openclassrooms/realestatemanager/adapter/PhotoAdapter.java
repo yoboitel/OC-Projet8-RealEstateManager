@@ -19,11 +19,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
     private Context context;
     private List<String> listPhotoUrls;
     private List<String> listPhotoDescriptions;
+    private boolean showTrashIcon;
 
-    public PhotoAdapter(Context context, List<String> listPhotoUrls, List<String> listPhotoDescriptions) {
+    public PhotoAdapter(Context context, List<String> listPhotoUrls, List<String> listPhotoDescriptions, boolean ShowTrashIcon) {
         this.context = context;
         this.listPhotoUrls = listPhotoUrls;
         this.listPhotoDescriptions = listPhotoDescriptions;
+        this.showTrashIcon = ShowTrashIcon;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -50,7 +52,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         //Setup viewholder views
         ImageView ivPhoto = holder.itemView.findViewById(R.id.ivPhotoBackground);
         TextView tvPhotoText = holder.itemView.findViewById(R.id.ivPhotoText);
+        tvPhotoText.setSelected(true);
         ImageView ivDeletePhoto = holder.itemView.findViewById(R.id.ivDeletePhoto);
+        if (!showTrashIcon)
+            ivDeletePhoto.setVisibility(View.GONE);
 
         //Set photo image and text
         ivPhoto.setImageURI(Uri.parse(itemUrl));

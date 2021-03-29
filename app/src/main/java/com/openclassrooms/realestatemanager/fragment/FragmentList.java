@@ -1,9 +1,11 @@
 package com.openclassrooms.realestatemanager.fragment;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -68,7 +70,15 @@ public class FragmentList extends Fragment {
                 viewNoEstates.setVisibility(View.VISIBLE);
             else {
                 viewNoEstates.setVisibility(View.GONE);
-                EstateAdapter estateAdapter = new EstateAdapter(requireActivity(), aVoid, position -> Toast.makeText(requireContext(), "Clicked at : " + position, Toast.LENGTH_SHORT).show());
+                EstateAdapter estateAdapter = new EstateAdapter(requireActivity(), aVoid, new EstateAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(int position) {
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.frame_container, new FragmentDetail(aVoid.get(position).getId()))
+                                .addToBackStack(null).commit();
+                    }
+                });
                 rcListEstate.setAdapter(estateAdapter);
                 estateAdapter.notifyDataSetChanged();
             }

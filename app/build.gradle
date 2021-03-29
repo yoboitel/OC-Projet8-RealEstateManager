@@ -38,4 +38,9 @@ dependencies {
     implementation 'com.opensooq.supernova:gligar:1.1.0'
     // Added of the Gson library
     implementation 'com.google.code.gson:gson:2.8.6'
+    //Maps
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-geocoder:1.0.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:5.8.0'
+    //Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
