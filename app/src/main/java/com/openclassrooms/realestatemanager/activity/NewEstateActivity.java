@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -32,12 +33,15 @@ import com.openclassrooms.realestatemanager.Database.Estate;
 import com.openclassrooms.realestatemanager.R;
 import com.openclassrooms.realestatemanager.Utils.NotificationHelper;
 import com.openclassrooms.realestatemanager.adapter.PhotoAdapter;
+import com.openclassrooms.realestatemanager.fragment.FragmentDetail;
 import com.opensooq.supernova.gligar.GligarPicker;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class NewEstateActivity extends AppCompatActivity {
 
@@ -64,15 +68,18 @@ public class NewEstateActivity extends AppCompatActivity {
         //Initialization
         initialization();
 
-        //Handle estate type dropdown menu
-        String[] typeArray = new String[]{"Apartment", "Loft", "House"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_material, typeArray);
-        fieldType.setAdapter(adapter);
+        Bundle b = getIntent().getExtras();
+        if (b != null) {
+            Integer passedEstateId = b.getInt("id");
+            //Come from fragment, edit estate.
+            setTitle("Edit Estate");
+            //TODO: fill fields with estate data
+            new getEstateById(passedEstateId).execute();
 
-        //Handle estate status dropdown menu
-        String[] statusArray = new String[]{"Available", "Sold"};
-        ArrayAdapter<String> adapterStatus = new ArrayAdapter<>(this, R.layout.dropdown_material, statusArray);
-        fieldStatus.setAdapter(adapterStatus);
+        } else {
+            //Come from the activity, new estate.
+            setTitle("New Estate");
+        }
 
         //Handle Fab to add new estate to db
         fabInsertEstate.setOnClickListener(view -> {
@@ -91,30 +98,23 @@ public class NewEstateActivity extends AppCompatActivity {
         fieldDateAvailable.setOnClickListener(view -> {
             MaterialDatePicker mp = MaterialDatePicker.Builder.datePicker().build();
             mp.show(getSupportFragmentManager(), "picker");
-            mp.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
-                @Override
-                public void onPositiveButtonClick(Object selection) {
-                    availableLong = Long.valueOf(selection.toString());
-                    fieldDateAvailable.setText(getFormattedDateFromLong(Long.parseLong(selection.toString())));
-                }
+            mp.addOnPositiveButtonClickListener(selection -> {
+                availableLong = Long.valueOf(selection.toString());
+                fieldDateAvailable.setText(getFormattedDateFromLong(Long.parseLong(selection.toString())));
             });
         });
         fieldDateSold.setOnClickListener(view -> {
             MaterialDatePicker mp = MaterialDatePicker.Builder.datePicker().build();
             mp.show(getSupportFragmentManager(), "picker");
-            mp.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
-                @Override
-                public void onPositiveButtonClick(Object selection) {
-                    soldLong = Long.valueOf(selection.toString());
-                    fieldDateSold.setText(getFormattedDateFromLong(Long.parseLong(selection.toString())));
-                }
+            mp.addOnPositiveButtonClickListener(selection -> {
+                soldLong = Long.valueOf(selection.toString());
+                fieldDateSold.setText(getFormattedDateFromLong(Long.parseLong(selection.toString())));
             });
         });
 
     }
 
     private void initialization() {
-        setTitle("New Estate");
         //Display back arrow
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         fieldType = findViewById(R.id.spinnerEstateCategory);
@@ -138,6 +138,8 @@ public class NewEstateActivity extends AppCompatActivity {
         //Setup photos recyclerview
         rcPhoto.setLayoutManager(new LinearLayoutManager(getBaseContext(), LinearLayoutManager.HORIZONTAL, false));
         rcPhoto.setHasFixedSize(true);
+        //Set dropdown menus for type and status choice menus
+        setDropdownMenusForTypeAndStatus();
     }
 
     //Go back to home when back arrow is clicked
@@ -152,25 +154,41 @@ public class NewEstateActivity extends AppCompatActivity {
 
     //Async task to insert new estate in Room database
     class InsertEstate extends AsyncTask<Void, Void, Void> {
-
         private Estate newEstate;
-
         InsertEstate(Estate estate) {
             this.newEstate = estate;
         }
-
         @Override
         protected Void doInBackground(Void... voids) {
-
             DbHelper.getInstance(getApplicationContext()).getAppDatabase().estateDao().insert(newEstate);
             return null;
         }
-
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             //Show success notification
             NotificationHelper.sendNotifications(getBaseContext(), "Informations", "New estate successfully added");
+            //Bring back to home
+            finish();
+        }
+    }
+
+    //Async task to insert new estate in Room database
+    class UpdateEstate extends AsyncTask<Void, Void, Void> {
+        private Estate newEstate;
+        UpdateEstate(Estate estate) {
+            this.newEstate = estate;
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DbHelper.getInstance(getApplicationContext()).getAppDatabase().estateDao().update(newEstate);
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //Show success notification
+            NotificationHelper.sendNotifications(getBaseContext(), "Informations", "Estate successfully updated");
             //Bring back to home
             finish();
         }
@@ -247,6 +265,12 @@ public class NewEstateActivity extends AppCompatActivity {
             //Call the asyncTask to insert estate in room database
 
             Estate estate = new Estate();
+
+            if (getIntent().getExtras() != null) {
+                //Comes from fragment, so call Update AsyncTask.
+                estate.setId(getIntent().getExtras().getInt("id"));
+            }
+
             estate.setType(fieldType.getText().toString());
             estate.setPrice(Integer.valueOf(fieldPrice.getEditText().getText().toString()));
             estate.setSurface(Integer.valueOf(fieldSurface.getEditText().getText().toString()));
@@ -267,10 +291,16 @@ public class NewEstateActivity extends AppCompatActivity {
             estate.setPhotoUrls(photoUrls);
             estate.setPhotoDescriptions(photoDescriptions);
 
-            InsertEstate insertEstate = new InsertEstate(estate);
-            insertEstate.execute();
+            //TODO: Check if we are in edit mode or insert mode to update or insert in room
+            //TODO: Call the InsertEstateTaks OR the UpdateEstateTask depending if we're on edit mode or not.
+            if (getIntent().getExtras() != null) {
+                //Comes from fragment, so call Update AsyncTask.
+                new UpdateEstate(estate).execute();
+            } else {
+                //Comes from the activity, so call Insert AsyncTask.
+                new InsertEstate(estate).execute();
+            }
         }
-
     }
 
     private void showSnack(String text) {
@@ -286,4 +316,87 @@ public class NewEstateActivity extends AppCompatActivity {
         }
         return state;
     }
+
+    //Async task to get estate details from id
+    class getEstateById extends AsyncTask<Void, Void, Estate> {
+
+        private int estateId;
+
+        getEstateById(int estateId) {
+            this.estateId = estateId;
+        }
+
+        @Override
+        protected Estate doInBackground(Void... voids) {
+            Estate estate = DbHelper.getInstance(getBaseContext()).getAppDatabase().estateDao().getEstateById(estateId);
+            return estate;
+        }
+        @Override
+        protected void onPostExecute(Estate aVoid) {
+            super.onPostExecute(aVoid);
+            fillDetailWithEstateData(aVoid);
+        }
+    }
+
+    private void fillDetailWithEstateData(Estate estate){
+        //Set photos, set the adapter and notify
+        photoUrls.addAll(estate.getPhotoUrls());
+        photoDescriptions.addAll(estate.getPhotoDescriptions());
+        rcPhoto.setAdapter(new PhotoAdapter(getBaseContext(), estate.getPhotoUrls(), estate.getPhotoDescriptions(), true));
+        //Set estate description
+        fieldDescription.getEditText().setText(estate.getDescription());
+        //Set estate type
+        fieldType.setText(estate.getType());
+        //Set estate room count
+        fieldRooms.getEditText().setText(String.valueOf(estate.getRooms()));
+        //Set estate price
+        fieldPrice.getEditText().setText(String.valueOf(estate.getPrice()));
+        //Set estate surface
+        fieldSurface.getEditText().setText(String.valueOf(estate.getSurface()));
+        //Set estate agent
+        fieldAgent.getEditText().setText(estate.getAgent());
+        //Set estate available date
+        fieldDateAvailable.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(estate.getDateAvailable()));
+        try {
+            availableLong = new SimpleDateFormat("dd/MM/yyyy").parse(fieldDateAvailable.getText().toString()).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        //Set estate sold date
+        if (estate.getDateSold() != null) {
+            try {
+                //TODO ?
+                //soldLong = estate.getDateSold();
+                soldLong = new SimpleDateFormat("dd/MM/yyyy").parse(fieldDateSold.getText().toString()).getTime();
+                Log.d("TOTO", "soldLong = " + soldLong);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            fieldDateSold.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(estate.getDateSold()));
+        }
+        //Set estate nearby interests
+        chipSchools.setChecked(estate.getSchools());
+        chipShops.setChecked(estate.getShops());
+        chipParks.setChecked(estate.getParks());
+        chipHospitals.setChecked(estate.getHospitals());
+        //Set estate address
+        fieldAddress.getEditText().setText(estate.getAddress());
+        //Set status
+        fieldStatus.setText(estate.getStatus());
+        //Re-Set dropdown menus
+        setDropdownMenusForTypeAndStatus();
+    }
+
+    private void setDropdownMenusForTypeAndStatus(){
+        //Handle estate type dropdown menu
+        String[] typeArray = new String[]{"Apartment", "Loft", "House"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_material, typeArray);
+        fieldType.setAdapter(adapter);
+
+        //Handle estate status dropdown menu
+        String[] statusArray = new String[]{"Available", "Sold"};
+        ArrayAdapter<String> adapterStatus = new ArrayAdapter<>(this, R.layout.dropdown_material, statusArray);
+        fieldStatus.setAdapter(adapterStatus);
+    }
+
 }

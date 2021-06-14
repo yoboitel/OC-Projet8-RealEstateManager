@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -26,6 +27,8 @@ public class FragmentList extends Fragment {
 
     RecyclerView rcListEstate;
     LinearLayout viewNoEstates;
+    FrameLayout frameDetailTablet;
+    boolean tabletMode = false;
 
     public FragmentList() {
         // Required empty public constructor
@@ -40,6 +43,13 @@ public class FragmentList extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_list, container, false);
+
+        //Check if we are in tablet mode to display the master/detail layout
+        frameDetailTablet = v.findViewById(R.id.frameDetailTablet);
+        if (frameDetailTablet != null){
+            //We are in tablet mode so display the fragment of the estate's detail in the right layout
+            tabletMode = true;
+        }
 
         viewNoEstates = v.findViewById(R.id.viewNoEstates);
         //Setup recyclerview
@@ -73,10 +83,20 @@ public class FragmentList extends Fragment {
                 EstateAdapter estateAdapter = new EstateAdapter(requireActivity(), aVoid, new EstateAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(int position) {
-                        requireActivity().getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.frame_container, new FragmentDetail(aVoid.get(position).getId()))
-                                .addToBackStack(null).commit();
+                        if (tabletMode)
+                        {
+                            requireActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.frameDetailTablet, new FragmentDetail(aVoid.get(position).getId()))
+                                    .addToBackStack(null)
+                                    .commit();
+                        } else {
+                            requireActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.frame_container, new FragmentDetail(aVoid.get(position).getId()))
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
                     }
                 });
                 rcListEstate.setAdapter(estateAdapter);
