@@ -73,7 +73,7 @@ public class NewEstateActivity extends AppCompatActivity {
             Integer passedEstateId = b.getInt("id");
             //Come from fragment, edit estate.
             setTitle("Edit Estate");
-            //TODO: fill fields with estate data
+            //fill fields with estate data
             new getEstateById(passedEstateId).execute();
 
         } else {
@@ -251,8 +251,10 @@ public class NewEstateActivity extends AppCompatActivity {
             showSnack("Please specify address");
         else if (TextUtils.isEmpty(fieldStatus.getText().toString()))
             showSnack("Please specify status");
-        else if (fieldStatus.getText().toString().equals("Available") && (!(fieldDateSold.getText().toString().isEmpty())))
+        else if (fieldStatus.getText().toString().equals("Available") && (!(fieldDateSold.getText().toString().isEmpty()))){
             fieldDateSold.getText().clear();
+            soldLong = null;
+        }
         else if (fieldStatus.getText().toString().equals("Sold") && (fieldDateSold.getText().toString().isEmpty()))
             showSnack("Please specify the sold date or change status");
         else if (TextUtils.isEmpty(fieldAgent.getEditText().getText().toString()))
@@ -284,15 +286,19 @@ public class NewEstateActivity extends AppCompatActivity {
             estate.setStatus(fieldStatus.getText().toString());
             estate.setAgent(fieldAgent.getEditText().getText().toString());
             estate.setDateAvailable(new Date(availableLong));
-            if (soldLong != null)
+            if (soldLong != null) {
                 estate.setDateSold(new Date(soldLong));
-            else
+                Log.d("MARIA", "ICI");
+            }
+            else {
                 estate.setDateSold(null);
+                Log.d("MARIA", "ICI SET A NULL");
+            }
             estate.setPhotoUrls(photoUrls);
             estate.setPhotoDescriptions(photoDescriptions);
 
-            //TODO: Check if we are in edit mode or insert mode to update or insert in room
-            //TODO: Call the InsertEstateTaks OR the UpdateEstateTask depending if we're on edit mode or not.
+            //Check if we are in edit mode or insert mode to update or insert in room
+            //Call the InsertEstateTaks OR the UpdateEstateTask depending if we're on edit mode or not.
             if (getIntent().getExtras() != null) {
                 //Comes from fragment, so call Update AsyncTask.
                 new UpdateEstate(estate).execute();
@@ -364,15 +370,12 @@ public class NewEstateActivity extends AppCompatActivity {
         }
         //Set estate sold date
         if (estate.getDateSold() != null) {
+            fieldDateSold.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(estate.getDateSold()));
             try {
-                //TODO ?
-                //soldLong = estate.getDateSold();
                 soldLong = new SimpleDateFormat("dd/MM/yyyy").parse(fieldDateSold.getText().toString()).getTime();
-                Log.d("TOTO", "soldLong = " + soldLong);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            fieldDateSold.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(estate.getDateSold()));
         }
         //Set estate nearby interests
         chipSchools.setChecked(estate.getSchools());
