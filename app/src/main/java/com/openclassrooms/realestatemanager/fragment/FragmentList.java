@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanager.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -80,27 +81,7 @@ public class FragmentList extends Fragment {
                 viewNoEstates.setVisibility(View.VISIBLE);
             else {
                 viewNoEstates.setVisibility(View.GONE);
-                EstateAdapter estateAdapter = new EstateAdapter(requireActivity(), aVoid, new EstateAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        if (tabletMode)
-                        {
-                            requireActivity().getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .replace(R.id.frameDetailTablet, new FragmentDetail(aVoid.get(position).getId()))
-                                    .addToBackStack(null)
-                                    .commit();
-                        } else {
-                            requireActivity().getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .replace(R.id.frame_container, new FragmentDetail(aVoid.get(position).getId()))
-                                    .addToBackStack(null)
-                                    .commit();
-                        }
-                    }
-                });
-                rcListEstate.setAdapter(estateAdapter);
-                estateAdapter.notifyDataSetChanged();
+                displayListOfEstates(aVoid);
             }
         }
     }
@@ -110,5 +91,29 @@ public class FragmentList extends Fragment {
     public void onResume() {
         super.onResume();
         new getAllEstates().execute();
+    }
+
+    private void displayListOfEstates(List<Estate> aVoid){
+        EstateAdapter estateAdapter = new EstateAdapter(requireActivity(), aVoid, new EstateAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                if (tabletMode)
+                {
+                    requireActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frameDetailTablet, new FragmentDetail(aVoid.get(position).getId()))
+                            .addToBackStack(null)
+                            .commit();
+                } else {
+                    requireActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame_container, new FragmentDetail(aVoid.get(position).getId()))
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }
+        });
+        rcListEstate.setAdapter(estateAdapter);
+        estateAdapter.notifyDataSetChanged();
     }
 }
