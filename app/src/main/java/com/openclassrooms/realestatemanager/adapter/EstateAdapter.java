@@ -8,12 +8,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.openclassrooms.realestatemanager.Database.Estate;
 import com.openclassrooms.realestatemanager.R;
 
-import java.io.File;
 import java.util.List;
 
 public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder> {
@@ -28,16 +28,7 @@ public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder
         this.onItemClickListener = onItemClickListener;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(View itemView) {
-            super(itemView);
-        }
-
-        public void bind(final Estate model, final OnItemClickListener listener) {
-            itemView.setOnClickListener(v -> listener.onItemClick(getLayoutPosition()));
-        }
-    }
-
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -47,7 +38,6 @@ public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder
 
         return new ViewHolder(view);
     }
-
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
@@ -72,14 +62,24 @@ public class EstateAdapter extends RecyclerView.Adapter<EstateAdapter.ViewHolder
             ivEstateSold.setVisibility(View.VISIBLE);
     }
 
-
     @Override
     public int getItemCount() {
         return list.size();
     }
 
+
     public interface OnItemClickListener {
         void onItemClick(int position);
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public ViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        public void bind(final Estate model, final OnItemClickListener listener) {
+            itemView.setOnClickListener(v -> listener.onItemClick(getLayoutPosition()));
+        }
     }
 
 }

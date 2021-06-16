@@ -4,21 +4,21 @@
     <item
         android:id="@+id/navigation_list"
         android:icon="@drawable/ic_list"
-        android:title="List"/>
+        android:title="@string/list" />
 
     <item
         android:id="@+id/navigation_map"
         android:icon="@drawable/ic_map"
-        android:title="Map" />
+        android:title="@string/map" />
 
     <item
         android:id="@+id/navigation_search"
         android:icon="@drawable/ic_search"
-        android:title="Search" />
+        android:title="@string/search" />
 
     <item
         android:id="@+id/navigation_loan"
         android:icon="@drawable/ic_loan"
-        android:title="Loan Simulator" />
+        android:title="@string/loan_simulator" />
 
 </menu>

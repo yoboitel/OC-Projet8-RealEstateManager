@@ -12,7 +12,7 @@ import com.openclassrooms.realestatemanager.R;
 
 public class NotificationHelper {
 
-    public static void sendNotifications(Context context, String title, String content){
+    public static void sendNotifications(Context context, String title, String content) {
 
         //Call the method to construct channel, required for newer android versions
         createNotificationChannel(context);

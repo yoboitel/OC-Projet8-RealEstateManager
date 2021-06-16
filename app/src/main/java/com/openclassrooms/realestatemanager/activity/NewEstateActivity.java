@@ -1,29 +1,26 @@
 package com.openclassrooms.realestatemanager.activity;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -33,15 +30,14 @@ import com.openclassrooms.realestatemanager.Database.Estate;
 import com.openclassrooms.realestatemanager.R;
 import com.openclassrooms.realestatemanager.Utils.NotificationHelper;
 import com.openclassrooms.realestatemanager.adapter.PhotoAdapter;
-import com.openclassrooms.realestatemanager.fragment.FragmentDetail;
 import com.opensooq.supernova.gligar.GligarPicker;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class NewEstateActivity extends AppCompatActivity {
 
@@ -57,9 +53,9 @@ public class NewEstateActivity extends AppCompatActivity {
     private RecyclerView rcPhoto;
     private ArrayList<String> photoUrls = new ArrayList<>();
     private ArrayList<String> photoDescriptions = new ArrayList<>();
-    private PhotoAdapter photoAdapter;
     private Long availableLong = null;
     private Long soldLong = null;
+    private MaterialDatePicker mp1, mp2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,15 +66,15 @@ public class NewEstateActivity extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
         if (b != null) {
-            Integer passedEstateId = b.getInt("id");
+            long passedEstateId = b.getLong("id");
             //Come from fragment, edit estate.
-            setTitle("Edit Estate");
+            setTitle(getString(R.string.edit_estate));
             //fill fields with estate data
             new getEstateById(passedEstateId).execute();
 
         } else {
             //Come from the activity, new estate.
-            setTitle("New Estate");
+            setTitle(getString(R.string.new_estate));
         }
 
         //Handle Fab to add new estate to db
@@ -96,17 +92,17 @@ public class NewEstateActivity extends AppCompatActivity {
 
         //Handle date selection
         fieldDateAvailable.setOnClickListener(view -> {
-            MaterialDatePicker mp = MaterialDatePicker.Builder.datePicker().build();
-            mp.show(getSupportFragmentManager(), "picker");
-            mp.addOnPositiveButtonClickListener(selection -> {
+            mp1 = MaterialDatePicker.Builder.datePicker().build();
+            mp1.show(getSupportFragmentManager(), "picker");
+            mp1.addOnPositiveButtonClickListener(selection -> {
                 availableLong = Long.valueOf(selection.toString());
                 fieldDateAvailable.setText(getFormattedDateFromLong(Long.parseLong(selection.toString())));
             });
         });
         fieldDateSold.setOnClickListener(view -> {
-            MaterialDatePicker mp = MaterialDatePicker.Builder.datePicker().build();
-            mp.show(getSupportFragmentManager(), "picker");
-            mp.addOnPositiveButtonClickListener(selection -> {
+            mp2 = MaterialDatePicker.Builder.datePicker().build();
+            mp2.show(getSupportFragmentManager(), "picker");
+            mp2.addOnPositiveButtonClickListener(selection -> {
                 soldLong = Long.valueOf(selection.toString());
                 fieldDateSold.setText(getFormattedDateFromLong(Long.parseLong(selection.toString())));
             });
@@ -116,7 +112,7 @@ public class NewEstateActivity extends AppCompatActivity {
 
     private void initialization() {
         //Display back arrow
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         fieldType = findViewById(R.id.spinnerEstateCategory);
         fieldPrice = findViewById(R.id.textInputLayoutEstatePrice);
         fieldSurface = findViewById(R.id.textInputLayoutEstateSurface);
@@ -152,48 +148,6 @@ public class NewEstateActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    //Async task to insert new estate in Room database
-    class InsertEstate extends AsyncTask<Void, Void, Void> {
-        private Estate newEstate;
-        InsertEstate(Estate estate) {
-            this.newEstate = estate;
-        }
-        @Override
-        protected Void doInBackground(Void... voids) {
-            DbHelper.getInstance(getApplicationContext()).getAppDatabase().estateDao().insert(newEstate);
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            //Show success notification
-            NotificationHelper.sendNotifications(getBaseContext(), "Informations", "New estate successfully added");
-            //Bring back to home
-            finish();
-        }
-    }
-
-    //Async task to insert new estate in Room database
-    class UpdateEstate extends AsyncTask<Void, Void, Void> {
-        private Estate newEstate;
-        UpdateEstate(Estate estate) {
-            this.newEstate = estate;
-        }
-        @Override
-        protected Void doInBackground(Void... voids) {
-            DbHelper.getInstance(getApplicationContext()).getAppDatabase().estateDao().update(newEstate);
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            //Show success notification
-            NotificationHelper.sendNotifications(getBaseContext(), "Informations", "Estate successfully updated");
-            //Bring back to home
-            finish();
-        }
-    }
-
     //Get Photo pick result
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -225,7 +179,7 @@ public class NewEstateActivity extends AppCompatActivity {
         photoUrls.add(stringUrl);
         photoDescriptions.add(title);
         //Add both lists in the adapter
-        photoAdapter = new PhotoAdapter(getBaseContext(), photoUrls, photoDescriptions, true);
+        PhotoAdapter photoAdapter = new PhotoAdapter(getBaseContext(), photoUrls, photoDescriptions, true);
         //Set the adapter and notify
         rcPhoto.setAdapter(photoAdapter);
         photoAdapter.notifyDataSetChanged();
@@ -238,31 +192,30 @@ public class NewEstateActivity extends AppCompatActivity {
     private void checkEverythingIsCorrectBeforeSaving() {
 
         if (TextUtils.isEmpty(fieldType.getText()))
-            showSnack("Please specify a type");
-        else if (TextUtils.isEmpty(fieldPrice.getEditText().getText().toString()))
-            showSnack("Please specify a price");
-        else if (TextUtils.isEmpty(fieldSurface.getEditText().getText().toString()))
-            showSnack("Please specify a surface");
-        else if (TextUtils.isEmpty(fieldRooms.getEditText().getText().toString()))
-            showSnack("Please specify rooms count");
-        else if (TextUtils.isEmpty(fieldDescription.getEditText().getText().toString()))
-            showSnack("Please specify description");
-        else if (TextUtils.isEmpty(fieldAddress.getEditText().getText().toString()))
-            showSnack("Please specify address");
+            showSnack(getString(R.string.specify_type));
+        else if (TextUtils.isEmpty(Objects.requireNonNull(fieldPrice.getEditText()).getText().toString()))
+            showSnack(getString(R.string.specify_price));
+        else if (TextUtils.isEmpty(Objects.requireNonNull(fieldSurface.getEditText()).getText().toString()))
+            showSnack(getString(R.string.specify_surface));
+        else if (TextUtils.isEmpty(Objects.requireNonNull(fieldRooms.getEditText()).getText().toString()))
+            showSnack(getString(R.string.specify_rooms_count));
+        else if (TextUtils.isEmpty(Objects.requireNonNull(fieldDescription.getEditText()).getText().toString()))
+            showSnack(getString(R.string.specify_description));
+        else if (TextUtils.isEmpty(Objects.requireNonNull(fieldAddress.getEditText()).getText().toString()))
+            showSnack(getString(R.string.specify_address));
         else if (TextUtils.isEmpty(fieldStatus.getText().toString()))
-            showSnack("Please specify status");
-        else if (fieldStatus.getText().toString().equals("Available") && (!(fieldDateSold.getText().toString().isEmpty()))){
+            showSnack(getString(R.string.specify_status));
+        else if (fieldStatus.getText().toString().equals(getString(R.string.available)) && (!(Objects.requireNonNull(fieldDateSold.getText()).toString().isEmpty()))) {
             fieldDateSold.getText().clear();
             soldLong = null;
-        }
-        else if (fieldStatus.getText().toString().equals("Sold") && (fieldDateSold.getText().toString().isEmpty()))
-            showSnack("Please specify the sold date or change status");
-        else if (TextUtils.isEmpty(fieldAgent.getEditText().getText().toString()))
-            showSnack("Please specify an agent");
-        else if (TextUtils.isEmpty(fieldDateAvailable.getText().toString()))
-            showSnack("Please specify the estate's available date");
+        } else if (fieldStatus.getText().toString().equals(getString(R.string.sold)) && (Objects.requireNonNull(fieldDateSold.getText()).toString().isEmpty()))
+            showSnack(getString(R.string.specify_solddate_or_change_status));
+        else if (TextUtils.isEmpty(Objects.requireNonNull(fieldAgent.getEditText()).getText().toString()))
+            showSnack(getString(R.string.specify_agent));
+        else if (TextUtils.isEmpty(Objects.requireNonNull(fieldDateAvailable.getText()).toString()))
+            showSnack(getString(R.string.specify_estate_available_date));
         else if (photoUrls.isEmpty())
-            showSnack("Please add at least one photo");
+            showSnack(getString(R.string.missing_photos));
         else {
             //Call the asyncTask to insert estate in room database
 
@@ -270,7 +223,7 @@ public class NewEstateActivity extends AppCompatActivity {
 
             if (getIntent().getExtras() != null) {
                 //Comes from fragment, so call Update AsyncTask.
-                estate.setId(getIntent().getExtras().getInt("id"));
+                estate.setId(getIntent().getExtras().getLong("id"));
             }
 
             estate.setType(fieldType.getText().toString());
@@ -288,11 +241,8 @@ public class NewEstateActivity extends AppCompatActivity {
             estate.setDateAvailable(new Date(availableLong));
             if (soldLong != null) {
                 estate.setDateSold(new Date(soldLong));
-                Log.d("MARIA", "ICI");
-            }
-            else {
+            } else {
                 estate.setDateSold(null);
-                Log.d("MARIA", "ICI SET A NULL");
             }
             estate.setPhotoUrls(photoUrls);
             estate.setPhotoDescriptions(photoDescriptions);
@@ -323,44 +273,23 @@ public class NewEstateActivity extends AppCompatActivity {
         return state;
     }
 
-    //Async task to get estate details from id
-    class getEstateById extends AsyncTask<Void, Void, Estate> {
-
-        private int estateId;
-
-        getEstateById(int estateId) {
-            this.estateId = estateId;
-        }
-
-        @Override
-        protected Estate doInBackground(Void... voids) {
-            Estate estate = DbHelper.getInstance(getBaseContext()).getAppDatabase().estateDao().getEstateById(estateId);
-            return estate;
-        }
-        @Override
-        protected void onPostExecute(Estate aVoid) {
-            super.onPostExecute(aVoid);
-            fillDetailWithEstateData(aVoid);
-        }
-    }
-
-    private void fillDetailWithEstateData(Estate estate){
+    private void fillDetailWithEstateData(Estate estate) {
         //Set photos, set the adapter and notify
         photoUrls.addAll(estate.getPhotoUrls());
         photoDescriptions.addAll(estate.getPhotoDescriptions());
         rcPhoto.setAdapter(new PhotoAdapter(getBaseContext(), estate.getPhotoUrls(), estate.getPhotoDescriptions(), true));
         //Set estate description
-        fieldDescription.getEditText().setText(estate.getDescription());
+        Objects.requireNonNull(fieldDescription.getEditText()).setText(estate.getDescription());
         //Set estate type
         fieldType.setText(estate.getType());
         //Set estate room count
-        fieldRooms.getEditText().setText(String.valueOf(estate.getRooms()));
+        Objects.requireNonNull(fieldRooms.getEditText()).setText(String.valueOf(estate.getRooms()));
         //Set estate price
-        fieldPrice.getEditText().setText(String.valueOf(estate.getPrice()));
+        Objects.requireNonNull(fieldPrice.getEditText()).setText(String.valueOf(estate.getPrice()));
         //Set estate surface
-        fieldSurface.getEditText().setText(String.valueOf(estate.getSurface()));
+        Objects.requireNonNull(fieldSurface.getEditText()).setText(String.valueOf(estate.getSurface()));
         //Set estate agent
-        fieldAgent.getEditText().setText(estate.getAgent());
+        Objects.requireNonNull(fieldAgent.getEditText()).setText(estate.getAgent());
         //Set estate available date
         fieldDateAvailable.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(estate.getDateAvailable()));
         try {
@@ -383,23 +312,93 @@ public class NewEstateActivity extends AppCompatActivity {
         chipParks.setChecked(estate.getParks());
         chipHospitals.setChecked(estate.getHospitals());
         //Set estate address
-        fieldAddress.getEditText().setText(estate.getAddress());
+        Objects.requireNonNull(fieldAddress.getEditText()).setText(estate.getAddress());
         //Set status
         fieldStatus.setText(estate.getStatus());
         //Re-Set dropdown menus
         setDropdownMenusForTypeAndStatus();
     }
 
-    private void setDropdownMenusForTypeAndStatus(){
+    private void setDropdownMenusForTypeAndStatus() {
         //Handle estate type dropdown menu
-        String[] typeArray = new String[]{"Apartment", "Loft", "House"};
+        String[] typeArray = new String[]{getString(R.string.apartment), getString(R.string.loft), getString(R.string.house)};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_material, typeArray);
         fieldType.setAdapter(adapter);
 
         //Handle estate status dropdown menu
-        String[] statusArray = new String[]{"Available", "Sold"};
+        String[] statusArray = new String[]{getString(R.string.available), getString(R.string.sold)};
         ArrayAdapter<String> adapterStatus = new ArrayAdapter<>(this, R.layout.dropdown_material, statusArray);
         fieldStatus.setAdapter(adapterStatus);
+    }
+
+    //Async task to insert new estate in Room database
+    class InsertEstate extends AsyncTask<Void, Void, Void> {
+        private Estate newEstate;
+
+        InsertEstate(Estate estate) {
+            this.newEstate = estate;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DbHelper.getInstance(getApplicationContext()).getAppDatabase().estateDao().insert(newEstate);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //Show success notification
+            NotificationHelper.sendNotifications(getBaseContext(), getString(R.string.notification_title), getString(R.string.notification_estate_added));
+            //Bring back to home
+            finish();
+        }
+    }
+
+    //Async task to insert new estate in Room database
+    class UpdateEstate extends AsyncTask<Void, Void, Void> {
+        private Estate newEstate;
+
+        UpdateEstate(Estate estate) {
+            this.newEstate = estate;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DbHelper.getInstance(getApplicationContext()).getAppDatabase().estateDao().update(newEstate);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //Show success notification
+            NotificationHelper.sendNotifications(getBaseContext(), getString(R.string.notification_title), getString(R.string.notification_estate_updated));
+            //Bring back to home
+            finish();
+        }
+    }
+
+    //Async task to get estate details from id
+    class getEstateById extends AsyncTask<Void, Void, Estate> {
+
+        private long estateId;
+
+        getEstateById(long estateId) {
+            this.estateId = estateId;
+        }
+
+        @Override
+        protected Estate doInBackground(Void... voids) {
+            Estate estate = DbHelper.getInstance(getBaseContext()).getAppDatabase().estateDao().getEstateById(estateId);
+            return estate;
+        }
+
+        @Override
+        protected void onPostExecute(Estate aVoid) {
+            super.onPostExecute(aVoid);
+            fillDetailWithEstateData(aVoid);
+        }
     }
 
 }

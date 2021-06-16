@@ -1,7 +1,8 @@
 package com.openclassrooms.realestatemanager.Database;
 
+import android.database.Cursor;
+
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
@@ -13,16 +14,20 @@ import java.util.List;
 public interface EstateDao {
 
     @Insert
-    void insert(Estate estate);
+    long insert(Estate estate);
 
     @Update
-    void update(Estate estate);
+    int update(Estate estate);
 
     @Query("SELECT * FROM estate")
     List<Estate> getEstates();
 
     @Query("SELECT * FROM estate WHERE id = :id")
-    Estate getEstateById(int id);
+    Estate getEstateById(long id);
+
+    //For content provider
+    @Query("SELECT * FROM estate WHERE id = :id")
+    Cursor getEstatesWithCursor(long id);
 
     //Search query
     @Query("SELECT * FROM estate WHERE type LIKE :type AND surface BETWEEN :minSurface AND :maxSurface" +

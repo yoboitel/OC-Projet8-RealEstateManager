@@ -6,9 +6,8 @@ import androidx.room.Room;
 
 public class DbHelper {
 
-    private Context mCtx;
     private static DbHelper mInstance;
-
+    private Context mCtx;
     //our app database object
     private AppDatabase appDatabase;
 

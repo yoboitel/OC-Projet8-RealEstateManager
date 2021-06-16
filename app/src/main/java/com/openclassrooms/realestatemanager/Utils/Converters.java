@@ -2,19 +2,20 @@ package com.openclassrooms.realestatemanager.Utils;
 
 import androidx.room.TypeConverter;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class Converters {
 
     //Arraylist String Converter
     @TypeConverter
     public static ArrayList<String> fromString(String value) {
-        Type listType = new TypeToken<ArrayList<String>>() {}.getType();
+        Type listType = new TypeToken<ArrayList<String>>() {
+        }.getType();
         return new Gson().fromJson(value, listType);
     }
 

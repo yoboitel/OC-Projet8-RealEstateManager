@@ -2,13 +2,14 @@ package com.openclassrooms.realestatemanager.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.openclassrooms.realestatemanager.R;
 import com.openclassrooms.realestatemanager.fragment.FragmentList;
 import com.openclassrooms.realestatemanager.fragment.FragmentLoan;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
+    //Handle bottomNavBar navigation
     private void bottomNavBarFragmentsManagement() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {

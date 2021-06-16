@@ -1,6 +1,6 @@
 package com.openclassrooms.realestatemanager.Database;
 
-import android.location.Address;
+import android.content.ContentValues;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -8,12 +8,11 @@ import androidx.room.PrimaryKey;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 public class Estate {
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    public long id;
     @ColumnInfo(name = "type")
     public String type;
     @ColumnInfo(name = "price")
@@ -47,11 +46,40 @@ public class Estate {
     @ColumnInfo(name = "photoDescriptions")
     public ArrayList<String> photoDescriptions;
 
-    public int getId() {
+    //For content provider
+    public static Estate fromContentValues(ContentValues values) {
+        final Estate item = new Estate();
+
+        if (values.containsKey("type")) item.setType(values.getAsString("type"));
+        if (values.containsKey("price")) item.setPrice(values.getAsInteger("price"));
+        if (values.containsKey("surface")) item.setSurface(values.getAsInteger("surface"));
+        if (values.containsKey("rooms")) item.setRooms(values.getAsInteger("rooms"));
+        if (values.containsKey("description"))
+            item.setDescription(values.getAsString("description"));
+        if (values.containsKey("address")) item.setDescription(values.getAsString("address"));
+        if (values.containsKey("schools")) item.setSchools(values.getAsBoolean("schools"));
+        if (values.containsKey("shops")) item.setSchools(values.getAsBoolean("shops"));
+        if (values.containsKey("parks")) item.setSchools(values.getAsBoolean("parks"));
+        if (values.containsKey("hospitals")) item.setSchools(values.getAsBoolean("hospitals"));
+        if (values.containsKey("status")) item.setDescription(values.getAsString("status"));
+        if (values.containsKey("agent")) item.setDescription(values.getAsString("agent"));
+        if (values.containsKey("dateAvailable"))
+            item.setDateAvailable((Date) values.get("dateAvailable"));
+        if (values.containsKey("dateSold")) item.setDateSold((Date) values.get("dateSold"));
+        if (values.containsKey("photoUrls"))
+            item.setPhotoUrls((ArrayList<String>) values.get("photoUrls"));
+        if (values.containsKey("photoDescriptions"))
+            item.setPhotoDescriptions((ArrayList<String>) values.get("photoDescriptions"));
+
+
+        return item;
+    }
+
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

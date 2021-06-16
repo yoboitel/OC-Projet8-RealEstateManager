@@ -41,7 +41,7 @@ import retrofit.Retrofit;
 
 public class FragmentDetail extends Fragment {
 
-    private Integer id;
+    private Long id;
     private RecyclerView rcPhotos;
     private TextView tvDetailDesc, tvDetailType, tvDetailRoom, tvDetailPrice, tvDetailSurface, tvDetailAddress, tvDetailAgent, tvDetailAvailableDate, tvDetailSoldDate;
     private ImageView ivDetailAddressPreview;
@@ -52,7 +52,7 @@ public class FragmentDetail extends Fragment {
         // Required empty public constructor
     }
 
-    public FragmentDetail(Integer id) {
+    public FragmentDetail(Long id) {
         // Constructor to pass the clicked estate id
         this.id = id;
     }
@@ -85,27 +85,7 @@ public class FragmentDetail extends Fragment {
         return v;
     }
 
-    class getEstateById extends AsyncTask<Void, Void, Estate> {
-
-        private int estateId;
-
-        getEstateById(int estateId) {
-            this.estateId = estateId;
-        }
-
-        @Override
-        protected Estate doInBackground(Void... voids) {
-            Estate estate = DbHelper.getInstance(requireActivity()).getAppDatabase().estateDao().getEstateById(estateId);
-            return estate;
-        }
-        @Override
-        protected void onPostExecute(Estate aVoid) {
-            super.onPostExecute(aVoid);
-            fillDetailViewsWithRoomData(aVoid);
-        }
-    }
-
-    private void fillDetailViewsWithRoomData(Estate estate){
+    private void fillDetailViewsWithRoomData(Estate estate) {
 
         //Set photos, set the adapter and notify
         rcPhotos.setAdapter(new PhotoAdapter(requireActivity(), estate.getPhotoUrls(), estate.getPhotoDescriptions(), false));
@@ -127,7 +107,7 @@ public class FragmentDetail extends Fragment {
         if (estate.getDateSold() != null)
             tvDetailSoldDate.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(estate.getDateSold()));
         else
-            tvDetailSoldDate.setText("Not sold yet");
+            tvDetailSoldDate.setText(R.string.not_sold_yet);
         //Set estate nearby interests
         setNearbyInterestChips(estate);
         //Set estate address
@@ -136,7 +116,7 @@ public class FragmentDetail extends Fragment {
         displayStaticMapFromGeocodedAddress(estate.getAddress());
     }
 
-    private void initialization(View v){
+    private void initialization(View v) {
         rcPhotos = v.findViewById(R.id.rcDetailPhotos);
         rcPhotos.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
         rcPhotos.setHasFixedSize(true);
@@ -194,14 +174,16 @@ public class FragmentDetail extends Fragment {
                     Picasso.get().load(generatedImageUrl).into(ivDetailAddressPreview);
                 }
             }
+
             @Override
             public void onFailure(Throwable t) {
-                Toast.makeText(requireActivity(), "Mapbox geocoding fail", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), R.string.mapbox_error, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void setNearbyInterestChips(Estate estate){
+    //Set state of chips
+    private void setNearbyInterestChips(Estate estate) {
         chipSchool.setChecked(estate.getSchools());
         chipSchool.setCheckable(false);
         chipSchops.setChecked(estate.getShops());
@@ -219,6 +201,27 @@ public class FragmentDetail extends Fragment {
         //Call AsyncTask to get estate detail
         if (id != null) {
             new getEstateById(id).execute();
+        }
+    }
+
+    class getEstateById extends AsyncTask<Void, Void, Estate> {
+
+        private long estateId;
+
+        getEstateById(long estateId) {
+            this.estateId = estateId;
+        }
+
+        @Override
+        protected Estate doInBackground(Void... voids) {
+            Estate estate = DbHelper.getInstance(requireActivity()).getAppDatabase().estateDao().getEstateById(estateId);
+            return estate;
+        }
+
+        @Override
+        protected void onPostExecute(Estate aVoid) {
+            super.onPostExecute(aVoid);
+            fillDetailViewsWithRoomData(aVoid);
         }
     }
 }
